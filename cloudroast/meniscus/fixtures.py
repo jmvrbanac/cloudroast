@@ -123,9 +123,15 @@ class ProfileFixture(ProducerFixture):
 
     def setUp(self):
         super(ProfileFixture, self).setUp()
+        # Standard Non-durable producer
         resp = self.producer_behaviors.create_producer()
         self.producer_id = resp['producer_id']
         self.profile_client.producer_id = self.producer_id
+
+        # Durable producer for testing of the durable nature of components
+        resp = self.producer_behaviors.create_producer(name='durable_prod',
+                                                       durable=True)
+        self.dur_producer_id = resp['producer_id']
 
     def tearDown(self):
         for profile_id in self.profile_behaviors.profiles_created:
@@ -162,6 +168,12 @@ class HostFixture(ProfileFixture):
             producer_ids=[self.producer_id])
         self.profile_id = resp['profile_id']
         self.host_client.profile_id = self.profile_id
+
+        resp = self.profile_behaviors.create_new_profile(
+            name='durable_profile',
+            producer_ids=[self.dur_producer_id])
+
+        self.durable_profile_id = resp['profile_id']
 
     def tearDown(self):
         for host_id in self.host_behaviors.hosts_created:
@@ -203,14 +215,14 @@ class StatusFixture(PairingFixture):
             deserialize_format=cls.marshalling.deserializer)
 
 
-class PublishingFixture(PairingFixture):
+class PublishingFixture(HostFixture):
 
     @classmethod
     def setUpClass(cls):
         super(PublishingFixture, cls).setUpClass()
         cls.correlate_config = CorrelationConfig()
         cls.publish_client = PublishingClient(
-            url='http://192.168.1.3:8080',
+            url=cls.correlate_config.correlator_base_url,
             api_version=cls.meniscus_config.api_version,
             serialize_format=cls.marshalling.serializer,
             deserialize_format=cls.marshalling.deserializer)
@@ -220,11 +232,16 @@ class PublishingFixture(PairingFixture):
 
     def setUp(self):
         super(PublishingFixture, self).setUp()
-        # We always need to tenant location to publish to
-        self.tenant_id, resp = self.tenant_behaviors.create_tenant()
-        self.assertEqual(resp.status_code, 201)
 
-        # We also always need the tenant token from the created tenant
+        # We always need the tenant token from the created tenant
         resp = self.tenant_client.get_tenant(self.tenant_id)
         self.assertEqual(resp.status_code, 200)
         self.tenant_token = str(resp.entity[0].token.valid)
+
+        host = self.correlate_config.host
+        resp = self.host_behaviors.create_new_host(hostname=host)
+        self.assertEqual(resp['request'].status_code, 201)
+
+        # Force setting id and token on the behavior
+        self.publish_behaviors.tenant_id = self.tenant_id
+        self.publish_behaviors.tenant_token = self.tenant_token

@@ -98,6 +98,7 @@ class ProducerFixture(TenantFixture):
     def tearDown(self):
         for producer_id in self.producer_behaviors.producers_created:
             self.producer_behaviors.delete_producer(producer_id, False)
+        self.producer_behaviors.producers_created = []
         super(ProducerFixture, self).tearDown()
 
 
@@ -137,6 +138,7 @@ class ProfileFixture(ProducerFixture):
         for profile_id in self.profile_behaviors.profiles_created:
             self.profile_behaviors.delete_profile(profile_id, False)
 
+        self.profile_behaviors.profiles_created = []
         super(ProfileFixture, self).tearDown()
 
 
@@ -179,6 +181,7 @@ class HostFixture(ProfileFixture):
         for host_id in self.host_behaviors.hosts_created:
             self.host_behaviors.delete_host(host_id, False)
 
+        self.host_behaviors.hosts_created = []
         super(HostFixture, self).tearDown()
 
 

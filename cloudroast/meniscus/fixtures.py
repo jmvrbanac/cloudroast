@@ -125,13 +125,14 @@ class ProfileFixture(ProducerFixture):
     def setUp(self):
         super(ProfileFixture, self).setUp()
         # Standard Non-durable producer
-        resp = self.producer_behaviors.create_producer()
+        resp = self.producer_behaviors.create_producer_from_cfg()
         self.producer_id = resp['producer_id']
         self.profile_client.producer_id = self.producer_id
 
         # Durable producer for testing of the durable nature of components
-        resp = self.producer_behaviors.create_producer(name='durable_prod',
-                                                       durable=True)
+        resp = self.producer_behaviors.create_producer_from_cfg(
+            name='durable_prod',
+            durable=True)
         self.dur_producer_id = resp['producer_id']
 
     def tearDown(self):

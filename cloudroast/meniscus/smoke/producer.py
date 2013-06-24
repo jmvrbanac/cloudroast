@@ -41,9 +41,10 @@ class TestProducer(ProducerFixture):
         self.assertEqual(producer.id, original_id)
 
     def test_get_all_producers(self):
+        name = random_string()
         result = self.producer_behaviors.create_producer_from_cfg()
         id_1 = result['producer_id']
-        result = self.producer_behaviors.create_producer_from_cfg(name=random_string())
+        result = self.producer_behaviors.create_producer_from_cfg(name=name)
         id_2 = result['producer_id']
 
         resp = self.producer_client.get_all_producers()

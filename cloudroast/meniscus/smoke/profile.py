@@ -19,18 +19,18 @@ from cloudroast.meniscus.fixtures import ProfileFixture
 class TestProfiles(ProfileFixture):
 
     def test_create_profile(self):
-        result = self.profile_behaviors.create_new_profile()
+        result = self.profile_behaviors.create_profile_from_cfg()
         self.assertEqual(result['request'].status_code, 201)
 
     def test_delete_profile(self):
-        result = self.profile_behaviors.create_new_profile()
+        result = self.profile_behaviors.create_profile_from_cfg()
         created_id = result['profile_id']
 
         resp = self.profile_behaviors.delete_profile(created_id)
         self.assertEqual(resp.status_code, 200)
 
     def test_get_profile(self):
-        profile_results = self.profile_behaviors.create_new_profile()
+        profile_results = self.profile_behaviors.create_profile_from_cfg()
         profile_id = profile_results['profile_id']
         profile_resp = self.profile_client.get_profile(profile_id)
         profile = profile_resp.entity
@@ -41,8 +41,8 @@ class TestProfiles(ProfileFixture):
         self.assertEqual(profile.name, self.tenant_config.profile_name)
 
     def test_get_all_profiles(self):
-        req_one = self.profile_behaviors.create_new_profile()
-        req_two = self.profile_behaviors.create_new_profile(name='pro2')
+        req_one = self.profile_behaviors.create_profile_from_cfg()
+        req_two = self.profile_behaviors.create_profile_from_cfg(name='pro2')
 
         profile_id_one = req_one['profile_id']
         profile_id_two = req_two['profile_id']
@@ -61,8 +61,8 @@ class TestProfiles(ProfileFixture):
         self.assertEqual(profile_two_name, 'pro2')
 
     def test_update_profile(self):
-        initial_profile_results = self.profile_behaviors.create_new_profile()
-        created_id = initial_profile_results['profile_id']
+        init_results = self.profile_behaviors.create_profile_from_cfg()
+        created_id = init_results['profile_id']
 
         # Update
         update_profile_results = self.profile_client.update_profile(
@@ -78,8 +78,8 @@ class TestProfiles(ProfileFixture):
         self.assertEqual(updated_name, 'updated_profile')
 
     def test_unlink_producer_update_profile(self):
-        initial_profile_results = self.profile_behaviors.create_new_profile()
-        created_id = initial_profile_results['profile_id']
+        init_results = self.profile_behaviors.create_profile_from_cfg()
+        created_id = init_results['profile_id']
         update_profile_results = self.profile_client.update_profile(
             id=created_id,
             name='updated_profile',

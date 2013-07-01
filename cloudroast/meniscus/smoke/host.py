@@ -19,20 +19,20 @@ from cloudroast.meniscus.fixtures import HostFixture
 class TestHost(HostFixture):
 
     def test_create_host(self):
-        result = self.host_behaviors.create_new_host(
+        result = self.host_behaviors.create_host_from_cfg(
             ip_v4=self.tenant_config.ip_address_v4,
             ip_v6=self.tenant_config.ip_address_v6,
             profile_id=self.profile_id)
         self.assertEqual(result['request'].status_code, 201)
 
     def test_delete_host(self):
-        result = self.host_behaviors.create_new_host()
+        result = self.host_behaviors.create_host_from_cfg()
         response = self.host_behaviors.delete_host(result['host_id'])
 
         self.assertEqual(response.status_code, 200)
 
     def test_update_host(self):
-        host_result = self.host_behaviors.create_new_host()
+        host_result = self.host_behaviors.create_host_from_cfg()
 
         # We currently have to set all values on the update due to an issue
         # when profile_id is equal to None.
@@ -53,7 +53,7 @@ class TestHost(HostFixture):
         self.assertEqual(host.ip_address_v6, '::1')
 
     def test_get_host(self):
-        host_result = self.host_behaviors.create_new_host()
+        host_result = self.host_behaviors.create_host_from_cfg()
         host_id = host_result['host_id']
 
         host_response = self.host_client.get_host(host_id)
@@ -69,8 +69,8 @@ class TestHost(HostFixture):
         first_hostname = self.tenant_config.hostname
         second_hostname = 'testhost_2'
 
-        host1_result = self.host_behaviors.create_new_host(first_hostname)
-        host2_result = self.host_behaviors.create_new_host(second_hostname)
+        host1_result = self.host_behaviors.create_host_from_cfg(first_hostname)
+        host2_result = self.host_behaviors.create_host_from_cfg(second_hostname)
 
         host1 = self.host_client.get_host(host1_result['host_id']).entity
         host2 = self.host_client.get_host(host2_result['host_id']).entity

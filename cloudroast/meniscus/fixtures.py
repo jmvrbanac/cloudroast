@@ -167,12 +167,12 @@ class HostFixture(ProfileFixture):
     def setUp(self):
         super(HostFixture, self).setUp()
 
-        resp = self.profile_behaviors.create_new_profile(
+        resp = self.profile_behaviors.create_profile_from_cfg(
             producer_ids=[self.producer_id])
         self.profile_id = resp['profile_id']
         self.host_client.profile_id = self.profile_id
 
-        resp = self.profile_behaviors.create_new_profile(
+        resp = self.profile_behaviors.create_profile_from_cfg(
             name='durable_profile',
             producer_ids=[self.dur_producer_id])
 
@@ -243,7 +243,7 @@ class PublishingFixture(HostFixture):
         self.tenant_token = str(resp.entity[0].token.valid)
 
         host = self.correlate_config.host
-        resp = self.host_behaviors.create_new_host(hostname=host)
+        resp = self.host_behaviors.create_host_from_cfg(hostname=host)
         self.assertEqual(resp['request'].status_code, 201)
 
         # Force setting id and token on the behavior

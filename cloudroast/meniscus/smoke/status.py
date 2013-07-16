@@ -37,7 +37,7 @@ class TestStatus(StatusFixture):
             worker_token=self.pairing_info.worker_token,
             status='online')
 
-        self.assertEqual(200, response.status_code)
+        self.assertEqual(response.status_code, 200)
 
     def test_update_worker_load_average(self):
         resp = self.status_client.update_load(
@@ -54,7 +54,7 @@ class TestStatus(StatusFixture):
 
     def test_update_worker_disk_usage(self):
         total, used = 100000, 30000
-        disk = {'/dev/sda1/': {'total': total, 'used': used}}
+        disk = [{'device':'/dev/sda1/', 'total': total, 'used': used}]
 
         resp = self.status_client.update_usage(
             worker_id=self.pairing_info.worker_id,
@@ -65,7 +65,7 @@ class TestStatus(StatusFixture):
         self.assertEqual(resp.status_code, 200)
 
         worker = self.get_worker_entity()
-        partition = worker.system_info.disk_usage.partitions[0]
+        partition = worker.system_info.disk_usage[0]
         self.assertEqual(partition.total, total)
         self.assertEqual(partition.used, used)
 

@@ -91,5 +91,5 @@ class TestProfiles(ProfileFixture):
         profile = updated_results.entity
 
         self.assertEqual(profile.name, 'updated_profile')
-        self.assertEqual(len(profile.event_producers), 0,
+        self.assertEqual(len(profile.event_producer_ids), 0,
                          'event producer size is 0')

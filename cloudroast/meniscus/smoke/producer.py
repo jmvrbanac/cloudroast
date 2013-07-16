@@ -62,7 +62,8 @@ class TestProducer(ProducerFixture):
         update_name = random_string()
         resp = self.producer_client.update_producer(
             producer_id=producer_id,
-            name=update_name)
+            name=update_name,
+            pattern=self.tenant_config.producer_pattern)
 
         self.assertEqual(resp.status_code, 200)
 

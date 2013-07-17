@@ -109,8 +109,10 @@ class TenantAPIProducer(ProducerFixture):
         self.assertIsNotNone(producer_id)
         self.assertEqual(resp['request'].status_code, 201)
 
+        pattern = self.tenant_config.producer_pattern
         resp = self.producer_client.update_producer(producer_id=producer_id,
-                                                    name='new_name')
+                                                    name='new_name',
+                                                    pattern=pattern)
         self.assertEqual(resp.status_code, 200)
 
         resp = self.producer_client.get_producer(producer_id)
@@ -126,8 +128,12 @@ class TenantAPIProducer(ProducerFixture):
         self.assertIsNotNone(producer_id)
         self.assertEqual(resp['request'].status_code, 201)
 
+        pattern = self.tenant_config.producer_pattern
+        name = self.tenant_config.producer_name
         resp = self.producer_client.update_producer(producer_id=producer_id,
-                                                    durable=True)
+                                                    durable=True,
+                                                    pattern=pattern,
+                                                    name=name)
         self.assertEqual(resp.status_code, 200)
 
         resp = self.producer_client.get_producer(producer_id)
@@ -143,8 +149,12 @@ class TenantAPIProducer(ProducerFixture):
         self.assertIsNotNone(producer_id)
         self.assertEqual(resp['request'].status_code, 201)
 
+        pattern = self.tenant_config.producer_pattern
+        name = self.tenant_config.producer_name
         resp = self.producer_client.update_producer(producer_id=producer_id,
-                                                    durable=False)
+                                                    durable=False,
+                                                    pattern=pattern,
+                                                    name=name)
         self.assertEqual(resp.status_code, 200)
 
         resp = self.producer_client.get_producer(producer_id)
@@ -160,8 +170,12 @@ class TenantAPIProducer(ProducerFixture):
         self.assertIsNotNone(producer_id)
         self.assertEqual(resp['request'].status_code, 201)
 
+        pattern = self.tenant_config.producer_pattern
+        name = self.tenant_config.producer_name
         resp = self.producer_client.update_producer(producer_id=producer_id,
-                                                    encrypted=True)
+                                                    encrypted=True,
+                                                    pattern=pattern,
+                                                    name=name)
         self.assertEqual(resp.status_code, 200)
 
         resp = self.producer_client.get_producer(producer_id)
@@ -177,8 +191,12 @@ class TenantAPIProducer(ProducerFixture):
         self.assertIsNotNone(producer_id)
         self.assertEqual(resp['request'].status_code, 201)
 
+        pattern = self.tenant_config.producer_pattern
+        name = self.tenant_config.producer_name
         resp = self.producer_client.update_producer(producer_id=producer_id,
-                                                    encrypted=False)
+                                                    encrypted=False,
+                                                    pattern=pattern,
+                                                    name=name)
         self.assertEqual(resp.status_code, 200)
 
         resp = self.producer_client.get_producer(producer_id)

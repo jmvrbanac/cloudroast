@@ -44,14 +44,14 @@ class TenantAPIProfile(ProfileFixture):
         # Should be covered in behavior, but just in case
         self.assertEqual(resp['request'].status_code, 201)
 
-    @tags(type='positive')
+    @tags(type='negative')
     def test_create_profile_with_int_name(self):
         """
-        Should be able to create a profile with the name being an int
+        Shouldn't be able to create a profile with the name being an int
         """
         profile_name = random_int(0, 100000)
         resp = self.profile_behaviors.create_profile(name=profile_name)
-        self.assertEqual(resp['request'].status_code, 201)
+        self.assertEqual(resp['request'].status_code, 400)
 
     @tags(type='negative')
     def test_create_profile_with_bogus_producer_id(self):
@@ -59,11 +59,11 @@ class TenantAPIProfile(ProfileFixture):
         Should return an error when you pass in a bogus producer id.
         - Reported in GitHub #272
         """
-        profile_name = random_int(0, 100000)
+        profile_name = str(random_int(0, 100000))
         producer_ids = [9999999999]
         resp = self.profile_behaviors.create_profile(name=profile_name,
                                                      producer_ids=producer_ids)
-        self.assertEqual(resp['request'].status_code, 404)
+        self.assertEqual(resp['request'].status_code, 400)
 
     @tags(type='positive')
     def test_update_profile_with_uuid_name(self):

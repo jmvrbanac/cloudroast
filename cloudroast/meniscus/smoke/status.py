@@ -13,6 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+import unittest
 from cloudroast.meniscus.fixtures import StatusFixture
 
 
@@ -73,6 +74,7 @@ class TestStatus(StatusFixture):
         worker = self.get_worker_entity()
         self.assertEqual(worker.hostname, self.pairing_config.hostname)
 
+    @unittest.skip('GitHub #316')
     def test_get_worker_statuses(self):
         resp = self.status_client.get_all_worker_statuses()
         self.assertEqual(resp.status_code, 200)

@@ -27,7 +27,7 @@ class TenantAPIHost(HostFixture):
             'hostname': hostname,
             'ip_address_v4': ip_v4,
             'ip_address_v6': ip_v6,
-            'profile': profile_id
+            'profile_id': profile_id
         }
         resp = self.host_behaviors.create_host(
             hostname=hostname,

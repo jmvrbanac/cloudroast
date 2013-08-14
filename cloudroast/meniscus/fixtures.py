@@ -16,18 +16,18 @@ limitations under the License.
 from cafe.drivers.unittest.fixtures import BaseTestFixture
 from cloudcafe.meniscus.common.cleanup_client import MeniscusDbClient
 from cloudcafe.meniscus.version_api.client import VersionClient
-from cloudcafe.meniscus.tenant_api.client import \
-    TenantClient, ProducerClient, ProfileClient, HostClient
+from cloudcafe.meniscus.tenant_api.client import TenantClient, ProducerClient
 from cloudcafe.meniscus.config import \
     MarshallingConfig, MeniscusConfig, TenantConfig, PairingConfig,\
     CorrelationConfig
-from cloudcafe.meniscus.tenant_api.behaviors \
-    import TenantBehaviors, ProducerBehaviors, ProfileBehaviors, HostBehaviors
+from cloudcafe.meniscus.tenant_api.behaviors import (TenantBehaviors,
+                                                     ProducerBehaviors)
 from cloudcafe.meniscus.coordinator_api.client import PairingClient
 from cloudcafe.meniscus.coordinator_api.behaviors import PairingBehaviors
 from cloudcafe.meniscus.correlator_api.client import PublishingClient
 from cloudcafe.meniscus.correlator_api.behaviors import PublishingBehaviors
 from cloudcafe.meniscus.status_api.client import WorkerStatusClient
+from cloudcafe.meniscus.status_api.behaviors import StatusAPIBehaviors
 
 
 class MeniscusFixture(BaseTestFixture):
@@ -102,90 +102,6 @@ class ProducerFixture(TenantFixture):
         super(ProducerFixture, self).tearDown()
 
 
-class ProfileFixture(ProducerFixture):
-
-    @classmethod
-    def setUpClass(cls):
-        super(ProfileFixture, cls).setUpClass()
-
-        cls.profile_client = ProfileClient(
-            url=cls.meniscus_config.base_url,
-            api_version=cls.meniscus_config.api_version,
-            tenant_id=cls.tenant_id,
-            producer_id=None,
-            serialize_format=cls.marshalling.serializer,
-            deserialize_format=cls.marshalling.deserializer)
-        cls.profile_behaviors = ProfileBehaviors(
-            tenant_client=cls.tenant_client,
-            producer_client=cls.producer_client,
-            profile_client=cls.profile_client,
-            db_client=cls.cleanup_client,
-            tenant_config=cls.tenant_config)
-
-    def setUp(self):
-        super(ProfileFixture, self).setUp()
-        # Standard Non-durable producer
-        resp = self.producer_behaviors.create_producer_from_cfg()
-        self.producer_id = resp['producer_id']
-        self.profile_client.producer_id = self.producer_id
-
-        # Durable producer for testing of the durable nature of components
-        resp = self.producer_behaviors.create_producer_from_cfg(
-            name='durable_prod',
-            durable=True)
-        self.dur_producer_id = resp['producer_id']
-
-    def tearDown(self):
-        for profile_id in self.profile_behaviors.profiles_created:
-            self.profile_behaviors.delete_profile(profile_id, False)
-
-        self.profile_behaviors.profiles_created = []
-        super(ProfileFixture, self).tearDown()
-
-
-class HostFixture(ProfileFixture):
-
-    @classmethod
-    def setUpClass(cls):
-        super(HostFixture, cls).setUpClass()
-
-        cls.host_client = HostClient(
-            url=cls.meniscus_config.base_url,
-            api_version=cls.meniscus_config.api_version,
-            tenant_id=cls.tenant_id,
-            profile_id=None,
-            serialize_format=cls.marshalling.serializer,
-            deserialize_format=cls.marshalling.deserializer)
-        cls.host_behaviors = HostBehaviors(
-            tenant_client=cls.tenant_client,
-            producer_client=cls.producer_client,
-            profile_client=cls.profile_client,
-            host_client=cls.host_client,
-            db_client=cls.cleanup_client,
-            tenant_config=cls.tenant_config)
-
-    def setUp(self):
-        super(HostFixture, self).setUp()
-
-        resp = self.profile_behaviors.create_profile_from_cfg(
-            producer_ids=[self.producer_id])
-        self.profile_id = resp['profile_id']
-        self.host_client.profile_id = self.profile_id
-
-        resp = self.profile_behaviors.create_profile_from_cfg(
-            name='durable_profile',
-            producer_ids=[self.dur_producer_id])
-
-        self.durable_profile_id = resp['profile_id']
-
-    def tearDown(self):
-        for host_id in self.host_behaviors.hosts_created:
-            self.host_behaviors.delete_host(host_id, False)
-
-        self.host_behaviors.hosts_created = []
-        super(HostFixture, self).tearDown()
-
-
 class PairingFixture(TenantFixture):
 
     @classmethod
@@ -217,9 +133,12 @@ class StatusFixture(PairingFixture):
             api_version=cls.meniscus_config.api_version,
             serialize_format=cls.marshalling.serializer,
             deserialize_format=cls.marshalling.deserializer)
+        cls.status_behaviors = StatusAPIBehaviors(
+            status_client=cls.status_client,
+            pairing_config=cls.pairing_config)
 
 
-class PublishingFixture(HostFixture):
+class PublishingFixture(ProducerFixture):
 
     @classmethod
     def setUpClass(cls):
@@ -241,10 +160,6 @@ class PublishingFixture(HostFixture):
         resp = self.tenant_client.get_tenant(self.tenant_id)
         self.assertEqual(resp.status_code, 200)
         self.tenant_token = str(resp.entity[0].token.valid)
-
-        host = self.correlate_config.host
-        resp = self.host_behaviors.create_host_from_cfg(hostname=host)
-        self.assertEqual(resp['request'].status_code, 201)
 
         # Force setting id and token on the behavior
         self.publish_behaviors.tenant_id = self.tenant_id

@@ -15,7 +15,7 @@ limitations under the License.
 """
 from uuid import uuid4
 from cafe.drivers.unittest.decorators import tags
-from test_repo.meniscus.fixtures import ProducerFixture
+from cloudroast.meniscus.fixtures import ProducerFixture
 
 
 class TenantAPIProducer(ProducerFixture):
@@ -106,6 +106,7 @@ class TenantAPIProducer(ProducerFixture):
         """
         resp = self.producer_behaviors.create_producer_from_cfg()
         producer_id = resp['producer_id']
+        print resp['request'].text
         self.assertIsNotNone(producer_id)
         self.assertEqual(resp['request'].status_code, 201)
 

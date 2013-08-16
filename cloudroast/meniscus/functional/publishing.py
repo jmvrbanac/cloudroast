@@ -54,9 +54,6 @@ class PositiveDatasetList(DatasetList):
 
 class NegativeDatasetList(DatasetList):
     def __init__(self):
-        # Reported in GitHub Meniscus Issue #238
-        self.append_new_dataset('unknown_host', {'host': 'bad'})
-        self.append_new_dataset('text_str_in_time', {'time': 'Jan-boom'})
         self.append_new_dataset('native_array', {'native': []})
         self.append_new_dataset('native_string', {'native': ''})
         self.append_new_dataset('native_int', {'native': 0})
